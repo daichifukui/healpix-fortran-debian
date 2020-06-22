@@ -1,0 +1,51 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: HEALPix
+Upstream-Contact: Martin Reinecke <martin@mpa-garching.mpg.de>
+Upstream-Source: http://sourceforge.net/p/healpix/code
+Files-Excluded: INSTALL Makefile.in README READ_Copyrights_Licenses.txt
+                Version configure data doc healpix_doc hpxconfig_functions.sh
+                src/common_libraries src/C src/cxx src/healpy src/idl src/java
+                src/python test src/f90/lib/gd* src/f90/lib/mtables.c
+Comment: The following files were removed because
+  src/f90/lib/gd*, src/f90/lib/mtables.c: bundled copy of source code for libgd, which is already available as a Debian package
+  all other files: non-Fortran part of monolithic source distribution for all languages
+
+Files: *
+Copyright: 1997-2013 HEALPix collaboration
+           2003-2019 Max-Planck-Society
+           1998-2013 Anthony J. Banday <banday@mpa-garching.mpg.de>
+           1998-2003 Matthias Bartelmann <mbartelmann@ita.uni-heidelberg.de>
+           2005-2008 Hans Kristian Eriksen <h.k.k.eriksen@astro.uio.no>
+           1997-2013 Krzysztof M. Gorski <krzysztof.m.gorski@jpl.nasa.gov>
+           1999-2000 Frode K. Hansen <fhansen@mpa-garching.mpg.de>
+           1997-2013 Eric Hivon <hivon@iap.fr>
+           2005-2013 William O'Mullane <womullan@skysrv.pha.jhu.edu>
+           2003-2013 Martin Reinecke <martin@mpa-garching.mpg.de>
+           1998-2003 Benjamin D. Wandelt <bwandelt@iap.fr>
+License: GPL-2+
+
+Files: debian/*
+Copyright: 2020 Leo Singer <leo.singer@ligo.org>
+License: GPL-2+
+
+License: GPL-2+
+ This program is free software; you can redistribute it
+ and/or modify it under the terms of the GNU General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later
+ version.
+ .
+ This program is distributed in the hope that it will be
+ useful, but WITHOUT ANY WARRANTY; without even the implied
+ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.  See the GNU General Public License for more
+ details.
+ .
+ You should have received a copy of the GNU General Public
+ License along with this package; if not, write to the Free
+ Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ Boston, MA  02110-1301 USA
+ .
+ On Debian systems, the full text of the GNU General Public
+ License version 2 can be found in the file
+ `/usr/share/common-licenses/GPL-2'.

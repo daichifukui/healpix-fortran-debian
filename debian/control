@@ -1,0 +1,44 @@
+Source: healpix-fortran
+Priority: optional
+Maintainer: Debian Astro Team <debian-astro-maintainers@lists.alioth.debian.org>
+Uploaders: Leo Singer <leo.singer@ligo.org>
+Homepage: http://healpix.sourceforge.net
+Build-Depends:
+ debhelper-compat (= 12),
+ dh-fortran-mod,
+ gfortran,
+ libcfitsio-dev,
+ libsharp-dev
+Standards-Version: 4.4.1
+Vcs-Git: https://salsa.debian.org/debian-astro-team/healpix-fortran.git
+Vcs-Browser: https://salsa.debian.org/debian-astro-team/healpix-fortran
+Section: libs
+
+Package: libhealpix-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}, libhealpix0 (= ${binary:Version})
+Description: HEALPix representation of spherical data - Fortran development library
+ HEALPix is an acronym for Hierarchical Equal Area isoLatitude Pixelization
+ of a sphere. As suggested in the name, this pixelization produces a
+ subdivision of a spherical surface in which each pixel covers the same
+ surface area as every other pixel. It is commonly used to store all-sky
+ astronomical images, most famously maps of the cosmic microwave background.
+ .
+ This package provides .mod files for the Fortran language implementation of
+ HEALPix.
+
+Package: libhealpix0
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: HEALPix representation of spherical data - Fortran library
+ HEALPix is an acronym for Hierarchical Equal Area isoLatitude Pixelization
+ of a sphere. As suggested in the name, this pixelization produces a
+ subdivision of a spherical surface in which each pixel covers the same
+ surface area as every other pixel. It is commonly used to store all-sky
+ astronomical images, most famously maps of the cosmic microwave background.
+ .
+ This package provides the Fortran language implementation of HEALPix.

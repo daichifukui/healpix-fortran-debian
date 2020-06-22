@@ -1,0 +1,35 @@
+#!/usr/bin/make -f
+
+include /usr/share/dpkg/pkg-info.mk
+
+%:
+	dh $@ --without autoreconf --with fortran_mod
+
+debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig/healpix.pc:
+	mkdir -p $(@D) && \
+	echo "prefix=/usr" > $@ && \
+	echo "exec_prefix=\$${prefix}" >> $@ && \
+	echo "libdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH)" >> $@ && \
+	echo "includedir=\$${prefix}/include" >> $@ && \
+	echo >> $@ && \
+	echo "Name: HEALPix" >> $@ && \
+	echo "Description: Fortran library for HEALPix (Hierarchical Equal-Area iso-Latitude) pixelisation of the sphere" >> $@ && \
+	echo "Version: $(shell echo $(DEB_VERSION_EPOCH_UPSTREAM) | sed 's/+.*//')" >> $@ && \
+	echo "URL: https://healpix.sourceforge.io" >> $@ && \
+	echo "Libs: -L\$${libdir} -lhealpix -lsharp -lcfitsio" >> $@ && \
+	echo "Cflags: -I\$${includedir}" >> $@
+
+override_dh_auto_install: debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig/healpix.pc
+	mkdir -p debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/fortran && \
+	$(MAKE) -C src/f90/mod \
+		OS=Linux \
+		BUILDDIR=$(CURDIR)/src/f90 \
+		LIBDIR=$(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH) \
+		INCDIR=$(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/fortran \
+		FC=f95 \
+		AR="f95 -fPIC -shared -fopenmp -Wl,-soname,libhealpix.so.0 -o " \
+		FFLAGS="-O3 -fPIC -fopenmp" \
+		LIBSUFFIX=".so.0.0.0" \
+		MOD="mod" \
+	&& ln -rs debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libhealpix.so.0.0.0 debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libhealpix.so.0 \
+	&& ln -rs debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libhealpix.so.0.0.0 debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libhealpix.so

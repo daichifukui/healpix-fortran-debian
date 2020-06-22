@@ -1,0 +1,4 @@
+To avoid confusion, the binaries of this package are not provided.
+The initial request for this package is just the shared library.
+The binaries have generic names which would need to be placed in a special
+directory or have prefixes added to their names to avoid collisions.

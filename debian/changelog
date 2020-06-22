@@ -1,0 +1,5 @@
+healpix-fortran (3.60+ds-1) unstable; urgency=medium
+
+  * Initial release. (Closes: #963092)
+
+ -- Leo Singer <leo.singer@ligo.org>  Fri, 19 Jun 2020 16:21:09 -0400
