@@ -2,7 +2,7 @@ Source: healpix-fortran
 Priority: optional
 Maintainer: Debian Astro Team <debian-astro-maintainers@lists.alioth.debian.org>
 Uploaders: Leo Singer <leo.singer@ligo.org>
-Homepage: http://healpix.sourceforge.net
+Homepage: https://healpix.sourceforge.net
 Build-Depends:
  debhelper-compat (= 12),
  dh-fortran-mod,
