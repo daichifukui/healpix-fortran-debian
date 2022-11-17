@@ -4,7 +4,7 @@ Maintainer: Debian Astro Team <debian-astro-maintainers@lists.alioth.debian.org>
 Uploaders: Leo Singer <leo.singer@ligo.org>
 Homepage: https://healpix.sourceforge.net
 Build-Depends:
- debhelper-compat (= 12),
+ debhelper-compat (= 13),
  dh-fortran-mod,
  gfortran,
  libcfitsio-dev,
