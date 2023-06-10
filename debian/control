@@ -9,7 +9,7 @@ Build-Depends:
  gfortran,
  libcfitsio-dev,
  libsharp-dev
-Standards-Version: 4.6.1
+Standards-Version: 4.6.2
 Vcs-Git: https://salsa.debian.org/debian-astro-team/healpix-fortran.git
 Vcs-Browser: https://salsa.debian.org/debian-astro-team/healpix-fortran
 Section: libs
