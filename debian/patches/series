@@ -1,1 +1,3 @@
 0001-Link-against-libsharp-and-libcfitsio.patch
+0002-Add-missing-Makefile-dependencies.patch
+0003-Fix-spelling-errors.patch

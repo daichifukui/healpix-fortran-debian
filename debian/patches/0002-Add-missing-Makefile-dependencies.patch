@@ -1,0 +1,39 @@
+From: Fukui Daichi <a.dog.will.talk@akane.waseda.jp>
+Date: Sat, 3 Oct 2026 12:00:00 +0900
+Subject: Add missing Makefile dependencies
+
+alm_tools.F90 uses the healpix_sharp_f90 module, but nothing ensured
+that healpix_sharp_f90.o (and therefore healpix_sharp_f90.mod) was built
+before alm_tools.o. The build thus only succeeded thanks to the order of
+prerequisites in $(obj), and failed with make --shuffle=reverse or with
+some parallel builds:
+
+  Fatal Error: Cannot open module file 'healpix_sharp_f90.mod' for reading
+
+Also make the creation of the build directory an order-only prerequisite
+of every object instead of relying on the order of prerequisites of
+'all'.
+
+Bug-Debian: https://bugs.debian.org/1105399
+Forwarded: no
+---
+ src/f90/mod/Makefile | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/src/f90/mod/Makefile b/src/f90/mod/Makefile
+--- a/src/f90/mod/Makefile
++++ b/src/f90/mod/Makefile
+@@ -69,6 +69,13 @@ $(obj5:%=$(OD)/%): $(obj4:%=$(OD)/%)
+ $(obj6:%=$(OD)/%): $(obj5:%=$(OD)/%)
+ $(obj7:%=$(OD)/%): $(obj6:%=$(OD)/%)
+ 
++# alm_tools uses the healpix_sharp_f90 module, which is not part of the
++# chain above
++$(OD)/alm_tools.o: $(OD)/healpix_sharp_f90.o
++
++# the build directory must exist before any object is written into it
++$(OBJ): | $(OD)_mkdir
++
+ $(OD)/%.o: $(SD)/%.c
+ 	$(CC) $(CFLAGS) -c $< -o $@
+ 

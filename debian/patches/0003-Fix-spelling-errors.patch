@@ -1,0 +1,37 @@
+From: Fukui Daichi <a.dog.will.talk@akane.waseda.jp>
+Date: Sat, 3 Oct 2026 12:00:00 +0900
+Subject: Fix spelling errors
+
+Fix spelling errors in messages printed by the library, as reported by
+Lintian (spelling-error-in-binary).
+
+Forwarded: no
+---
+ src/f90/mod/pix_tools.F90         | 2 +-
+ src/f90/mod/remove_dipole_inc.f90 | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/f90/mod/pix_tools.F90 b/src/f90/mod/pix_tools.F90
+--- a/src/f90/mod/pix_tools.F90
++++ b/src/f90/mod/pix_tools.F90
+@@ -1094,7 +1094,7 @@ contains
+     print*,'WARNING: obsolete interface to '//code
+     print*,'    cos_theta_cut currently a DP scalar with value'
+     write(*,9000) '    ',cos_theta_cut
+-    print*,'    shoud now be replaced with a 2-element vector with values:'
++    print*,'    should now be replaced with a 2-element vector with values:'
+     write(*,9001) '    ',zbounds(1),zbounds(2)
+     print*,'    See documentation for details.'
+     print*,' -------------------------------------'
+diff --git a/src/f90/mod/remove_dipole_inc.f90 b/src/f90/mod/remove_dipole_inc.f90
+--- a/src/f90/mod/remove_dipole_inc.f90
++++ b/src/f90/mod/remove_dipole_inc.f90
+@@ -113,7 +113,7 @@
+     n_mult = (degree)**2
+     n_mult1 = size(multipoles)
+     if (n_mult1 < n_mult) then 
+-       print*,'WARNING: '//code//' multipoles is not large enough to accomodate results:'
++       print*,'WARNING: '//code//' multipoles is not large enough to accommodate results:'
+        print*, 'size=',n_mult1, ';   needs:',n_mult
+        n_mult = n_mult1
+     endif

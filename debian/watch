@@ -1,2 +1,7 @@
-version=4
-opts="repacksuffix=+ds,dversionmangle=s/\+ds//,repack" https://sf.net/healpix/ Healpix_([0-9\.]+)_\w+.tar.gz
+Version: 5
+
+Source: https://sf.net/healpix/
+Matching-Pattern: Healpix_([0-9\.]+)_\w+.tar.gz
+Repack: yes
+Repack-Suffix: +ds
+Dversion-Mangle: s/\+ds//

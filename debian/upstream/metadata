@@ -1,0 +1,14 @@
+Bug-Database: https://sourceforge.net/p/healpix/bugs/
+Documentation: https://healpix.sourceforge.io/documentation.php
+Repository-Browse: https://sourceforge.net/p/healpix/code/
+Reference:
+  Author: K. M. Gorski and E. Hivon and A. J. Banday and B. D. Wandelt and F. K. Hansen and M. Reinecke and M. Bartelmann
+  Title: "HEALPix: A Framework for High-Resolution Discretization and Fast Analysis of Data Distributed on the Sphere"
+  Journal: The Astrophysical Journal
+  Volume: 622
+  Number: 2
+  Pages: 759-771
+  Year: 2005
+  DOI: 10.1086/427976
+  URL: https://doi.org/10.1086/427976
+  Eprint: https://arxiv.org/abs/astro-ph/0409513

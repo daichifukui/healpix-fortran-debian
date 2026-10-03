@@ -2,6 +2,12 @@ From: Leo Singer <leo.singer@ligo.org>
 Date: Thu, 18 Jun 2020 21:01:46 -0400
 Subject: Link against libsharp and libcfitsio
 
+Debian builds libhealpix as a shared library, which must be linked
+against the libraries it uses so that it carries the corresponding
+DT_NEEDED entries. Upstream only builds a static archive by default, for
+which this is not needed.
+
+Forwarded: not-needed
 ---
  src/f90/mod/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
