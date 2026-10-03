@@ -327,7 +327,7 @@
 
     real(DP), dimension(1:2)         :: zbounds_in
     integer(I4B) :: l, m, ith                          ! alm related
-    integer(I8B) :: istart_south, istart_north, npix   ! map related
+    integer(I8B) :: istart_south, istart_north, npix, p! map related
     integer(I4B) :: nrings, nphmx
 
     real(DP),     dimension(1:4)              :: b_even, b_odd
@@ -354,13 +354,27 @@
 #ifdef USE_SHARP
     zbounds_in = (/-1.d0 , 1.d0/)
     if (present(zbounds)) zbounds_in = zbounds
-
+!     aspin = abs(spin)
+!     if ((aspin>0).and.(aspin<=100)) then
+!       call sharp_hp_alm2map_spin_x_KLOAD(nsmax,nlmax,nmmax,aspin, &
+!         alm(1:2,0:nlmax,0:nmmax),map(0:12*nsmax*nsmax-1,1:2), zbounds_in)
+!       return
+!     endif
+    ! 2021-06-15: use scalar routine when s=0
     aspin = abs(spin)
-    if ((aspin>0).and.(aspin<=100)) then
-      call sharp_hp_alm2map_spin_x_KLOAD(nsmax,nlmax,nmmax,aspin, &
-        alm(1:2,0:nlmax,0:nmmax),map(0:12*nsmax*nsmax-1,1:2), zbounds_in)
-      return
+    npix  = (12_I8B*nsmax)*nsmax
+    if (aspin > 0) then
+       call sharp_hp_alm2map_spin_x_KLOAD(nsmax,nlmax,nmmax,aspin, &
+            alm(1:2,0:nlmax,0:nmmax),map(0:npix-1,1:2), zbounds_in)
+    else
+       call sharp_hp_alm2map_x_KLOAD(nsmax,nlmax,nmmax,&
+            alm(1:1,0:nlmax,0:nmmax),map(0:npix-1,1), zbounds_in)
+       do p = 0_I8B, npix - 1_I8B
+          map(p,1) = -map(p,1) ! mimic alm sign convention of alm2map_spin
+          map(p,2) = 0.0_KMAP  ! unused for s=0
+       enddo
     endif
+    return
 #endif
     !=======================================================================
 
@@ -2420,7 +2434,6 @@
     if (present(zbounds)) zbounds_in = zbounds
     w8ring_in  = 1.d0
     if (present(w8ring))  w8ring_in  = w8ring
-
     call sharp_hp_map2alm_x_KLOAD(nsmax,nlmax,nmmax,map,alm,zbounds_in,w8ring_in)
 #else
 
@@ -2696,12 +2709,29 @@
     if (present(w8ring))  w8ring_in  = w8ring
 
 #ifdef USE_SHARP
+!     aspin = abs(spin)
+!     if ((aspin>0).and.(aspin<=100)) then
+!       call sharp_hp_map2alm_spin_x_KLOAD(nsmax,nlmax,nmmax,aspin, &
+!         map(0:12*nsmax*nsmax-1,1:2),alm(1:2,0:nlmax,0:nmmax),zbounds_in,w8ring_in)
+!       return
+!     endif
+    ! 2021-06-15: use scalar routine when s=0
     aspin = abs(spin)
-    if ((aspin>0).and.(aspin<=100)) then
-      call sharp_hp_map2alm_spin_x_KLOAD(nsmax,nlmax,nmmax,aspin, &
-        map(0:12*nsmax*nsmax-1,1:2),alm(1:2,0:nlmax,0:nmmax),zbounds_in,w8ring_in)
-      return
+    npix  = (12_I8B*nsmax)*nsmax
+    if (aspin > 0) then
+       call sharp_hp_map2alm_spin_x_KLOAD(nsmax,nlmax,nmmax,aspin, &
+            map(0:npix-1,1:2),alm(1:2,0:nlmax,0:nmmax),zbounds_in,w8ring_in)
+    else
+       call sharp_hp_map2alm_x_KLOAD(nsmax,nlmax,nmmax, &
+            map(0:npix-1,1),alm(1:1,0:nlmax,0:nmmax),zbounds_in,w8ring_in)
+       do l=0,nlmax
+          do m=l,nmmax
+             alm(1,l,m) = -alm(1,l,m) ! implement alm sign convention of map2alm_spin
+             alm(2,l,m) = 0.0_DPC     ! unused for s=0
+          enddo
+       enddo
     endif
+    return
 #endif
 
     ! Healpix definitions
@@ -5112,33 +5142,41 @@
           rms_c1 = ZERO
           rms_c2 = ZERO
           rms_c3 = ZERO
+          ! compute rms_g2 (E->E) and rms_c2 (E->B)
           if (cls_tt(l) > ZERO) then
              var_g2 = cls_gg(l) - (cls_tg(l)/cls_tt(l))*cls_tg(l) ! to avoid underflow
-             ! test for consistency but make sure it is not due to round off error
-             if (var_g2 <= ZERO) then
-                if (abs(var_g2) > abs(1.e-8*cls_gg(l))) then
-                   print*,code//'> Inconsistent TT, GG and TG spectra at l=',l
-                   call fatal_error
-                else ! only round off error, keep going
-                   var_g2 = ZERO
-                endif
-             endif
-             rms_c1 = cls_tc(l) / sqrt( cls_tt(l) )
-             if (var_g2 > ZERO) then
-                rms_g2 = sqrt( var_g2 )
-                rms_c2 = ( cls_gc(l) - cls_tc(l) * (cls_tg(l) / cls_tt(l)) ) / rms_g2
-             endif
-             var_c3 = cls_cc(l) - rms_c1**2 - rms_c2**2
-             if (var_c3 <= ZERO) then
-                if (abs(var_c3) > abs(1.e-8*cls_cc(l))) then
-                   print*,code//'> Inconsistent spectra at l=',l
-                   call fatal_error
-                else ! only round off error, keep going
-                   var_c3 = ZERO
-                endif
-             endif
-             rms_c3 = sqrt( var_c3 )
+          else
+             var_g2 = cls_gg(l)
           endif
+          ! test for consistency but make sure it is not due to round off error
+          if (var_g2 <= ZERO) then
+             if (abs(var_g2) > abs(1.e-8*cls_gg(l))) then
+                print*,code//'> Inconsistent TT, GG and TG spectra at l=',l
+                call fatal_error
+             else ! only round off error, keep going
+                var_g2 = ZERO
+             endif
+          endif
+          if (var_g2 > ZERO) then
+             rms_g2 = sqrt( var_g2 )
+             if (cls_tt(l) > ZERO) then
+                rms_c2 = ( cls_gc(l) - cls_tc(l) * (cls_tg(l) / cls_tt(l)) ) / rms_g2
+             else
+                rms_c2 = cls_gc(l) / rms_g2
+             endif
+          endif
+          ! compute rms_c3 (B->B)
+          if (cls_tt(l) > ZERO)   rms_c1 = cls_tc(l) / sqrt( cls_tt(l) )
+          var_c3 = cls_cc(l) - rms_c1**2 - rms_c2**2
+          if (var_c3 <= ZERO) then
+             if (abs(var_c3) > abs(1.e-8*cls_cc(l))) then
+                print*,code//'> Inconsistent TT, TG, TC, GC spectra at l=',l
+                call fatal_error
+             else ! only round off error, keep going
+                var_c3 = ZERO
+             endif
+          endif
+          rms_c3 = sqrt( var_c3 )
 
           !           ------ m = 0 ------
           zeta2_r = rand_gauss(rng_handle)

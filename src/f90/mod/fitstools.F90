@@ -84,6 +84,8 @@ module fitstools
   ! subroutine read_bintod
   ! subroutine write_bintabh
   ! subroutine unfold_weights
+  ! subroutine read_fits_partial
+  ! subroutine write_fits_partial
   ! ----------------------------------
   !
   ! subroutine read_fits_cut4               ?
@@ -119,6 +121,7 @@ module fitstools
   real(kind=SP),     private, parameter :: s_bad_value = HPX_SBADVAL
   real(kind=DP),     private, parameter :: d_bad_value = HPX_DBADVAL
   integer(kind=I4B), private, parameter :: i_bad_value = -1637500000
+  integer(kind=I8B), private, parameter :: l_bad_value = -1637500000_I8B
   integer(I4B) ,     private, parameter :: nchunk_max  = 12000
   integer(I4B),      private, parameter :: MAXDIM_TOP  = 199 ! < 999
 
@@ -164,6 +167,24 @@ module fitstools
      module procedure read_bintab8_s, read_bintab8_d
 #else
      module procedure read_bintab8_s, read_bintab8_d, read_bintab4_s, read_bintab4_d
+#endif
+  end interface
+
+  interface read_fits_partial
+#ifdef NO64BITS
+     module procedure read_fits_partial8_s, read_fits_partial8_d
+#else
+     module procedure read_fits_partial8_s, read_fits_partial8_d, &
+          & read_fits_partial4_s, read_fits_partial4_d
+#endif
+  end interface
+
+  interface write_fits_partial
+#ifdef NO64BITS
+     module procedure write_fits_partial4_s, write_fits_partial4_d
+#else
+     module procedure write_fits_partial8_s, write_fits_partial8_d, &
+          & write_fits_partial4_s, write_fits_partial4_d
 #endif
   end interface
 
@@ -217,11 +238,19 @@ module fitstools
   end interface
 
   interface f90ftpcl_
-     module procedure f90ftpcle, f90ftpcld
+#ifdef NO64BITS
+     module procedure f90ftpcle, f90ftpcld, f90ftpclj
+#else
+     module procedure f90ftpcle, f90ftpcld, f90ftpclj, f90ftpclk
+#endif
   end interface
 
   interface f90ftgcv_
-     module procedure f90ftgcve, f90ftgcvd
+#ifdef NO64BITS
+     module procedure f90ftgcve, f90ftgcvd, f90ftgcvj
+#else
+     module procedure f90ftgcve, f90ftgcvd, f90ftgcvj, f90ftgcvk
+#endif
   end interface
 
   interface f90ftgpv_
@@ -229,7 +258,11 @@ module fitstools
   end interface
 
   interface f90ftgky_
-     module procedure f90ftgkye, f90ftgkyd
+#ifdef NO64BITS
+     module procedure f90ftgkye, f90ftgkyd, f90ftgkyj
+#else
+     module procedure f90ftgkye, f90ftgkyd, f90ftgkyj, f90ftgkyk
+#endif
   end interface
 
   interface map_bad_pixels
@@ -249,6 +282,7 @@ module fitstools
   public :: read_fits_cut4, write_fits_cut4, & 
        & input_map, read_bintab,  &
        & output_map, write_bintab
+  public :: read_fits_partial, write_fits_partial
   public :: write_plm
   public :: fits2cl, read_asctab, write_asctab
   public :: read_dbintab, write_dbintab
@@ -262,7 +296,7 @@ module fitstools
 contains
 
   !-------------------------------------------------------------------------------
-  ! generic interface F90FTPCL_ for FITSIO's FTPCLE and FTPCLD
+  ! generic interface F90FTPCL_ for FITSIO's FTPCL[E,D,J,K]
   !           writes data in ASCTAB or BINTAB
   subroutine f90ftpcle(unit, colnum, frow, felem, np, data, status)
     integer(I4B), intent(in)  :: unit, colnum, frow, felem, np
@@ -278,8 +312,24 @@ contains
     call ftpcld(unit, colnum, frow, felem, np, data, status)
     return
   end subroutine f90ftpcld
+  subroutine f90ftpclj(unit, colnum, frow, felem, np, data, status)
+    integer(I4B), intent(in)  :: unit, colnum, frow, felem, np
+    integer(I4B), intent(out) :: status
+    integer(I4B), intent(in), dimension(0:)  :: data
+    call ftpclj(unit, colnum, frow, felem, np, data, status)
+    return
+  end subroutine f90ftpclj
+#ifndef NO64BITS
+  subroutine f90ftpclk(unit, colnum, frow, felem, np, data, status)
+    integer(I4B), intent(in)  :: unit, colnum, frow, felem, np
+    integer(I4B), intent(out) :: status
+    integer(I8B), intent(in), dimension(0:)  :: data
+    call ftpclk(unit, colnum, frow, felem, np, data, status)
+    return
+  end subroutine f90ftpclk
+#endif
   !-------------------------------------------------------------------------------
-  ! generic interface F90FTGCV_ for FITSIO's FTGCVE and FTGCVD
+  ! generic interface F90FTGCV_ for FITSIO's FTGCV[E,D,J,K]
   !           reads data from BINTAB
   subroutine f90ftgcve(unit, colnum, frow, felem, np, nullval, data, anynull, status)
     integer(I4B), intent(in)  :: unit, colnum, frow, felem, np
@@ -299,6 +349,26 @@ contains
     call ftgcvd(unit, colnum, frow, felem, np, nullval, data, anynull, status)
     return
   end subroutine f90ftgcvd
+  subroutine f90ftgcvj(unit, colnum, frow, felem, np, nullval, data, anynull, status)
+    integer(I4B), intent(in)  :: unit, colnum, frow, felem, np
+    integer(I4B), intent(out) :: status
+    logical(LGT), intent(out) :: anynull
+    integer(I4B), intent(out), dimension(0:) :: data
+    integer(I4B), intent(in)                 :: nullval
+    call ftgcvj(unit, colnum, frow, felem, np, nullval, data, anynull, status)
+    return
+  end subroutine f90ftgcvj
+#ifndef NO64BITS
+  subroutine f90ftgcvk(unit, colnum, frow, felem, np, nullval, data, anynull, status)
+    integer(I4B), intent(in)  :: unit, colnum, frow, felem, np
+    integer(I4B), intent(out) :: status
+    logical(LGT), intent(out) :: anynull
+    integer(I8B), intent(out), dimension(0:) :: data
+    integer(I8B), intent(in)                 :: nullval
+    call ftgcvk(unit, colnum, frow, felem, np, nullval, data, anynull, status)
+    return
+  end subroutine f90ftgcvk
+#endif
   !-------------------------------------------------------------------------------
   ! generic interface F90FTGPV_ for FITSIO's FTGPVE and FTGPVD
   !           reads data from IMAGE
@@ -321,7 +391,7 @@ contains
     return
   end subroutine f90ftgpvd
   !-------------------------------------------------------------------------------
-  ! generic interface F90FTGKY_ for FITSIO's FTGKYE and FTGKYD
+  ! generic interface F90FTGKY_ for FITSIO's FTGKY[E,D,J,K]
   !           reads a keyword
   subroutine f90ftgkye(unit, keyword, value, comment, status)
     integer(I4B),     intent(in)  :: unit
@@ -341,14 +411,34 @@ contains
     call ftgkyd(unit, keyword, value, comment, status)
     return
   end subroutine f90ftgkyd
+  subroutine f90ftgkyj(unit, keyword, value, comment, status)
+    integer(I4B),     intent(in)  :: unit
+    character(len=*), intent(in)  :: keyword
+    integer(I4B),     intent(out) :: status
+    character(len=*), intent(out) :: comment
+    integer(I4B),     intent(out) :: value
+    call ftgkyj(unit, keyword, value, comment, status)
+    return
+  end subroutine f90ftgkyj
+#ifndef NO64BITS
+  subroutine f90ftgkyk(unit, keyword, value, comment, status)
+    integer(I4B),     intent(in)  :: unit
+    character(len=*), intent(in)  :: keyword
+    integer(I4B),     intent(out) :: status
+    character(len=*), intent(out) :: comment
+    integer(I8B),     intent(out) :: value
+    call ftgkyk(unit, keyword, value, comment, status)
+    return
+  end subroutine f90ftgkyk
+#endif
   !-------------------------------------------------------------------------------
 
 
   ! define routine with SP I/O
-#include "fits_s_inc.f90"
+#include "fits_s_inc.F90"
 
   ! define routine with DP I/O
-#include "fits_d_inc.f90"
+#include "fits_d_inc.F90"
 
 
 
@@ -402,14 +492,14 @@ contains
     call ftgkyj(unit,'NAXIS', naxis, comment, status)
     if (status > 0) call printerror(status)
     if (naxis > 0) then ! there is an image
-       print*,'an image was found in the FITS file '//filename
+       print*,'an image was found in the FITS file '//trim(filename)
        print*,'... it is ignored.'
     endif
 
     !     determines the presence of an extension
     call ftgkyl(unit,'EXTEND', extend, comment, status)
     if (status > 0) then 
-       print*,'extension expected and not found in FITS file '//filename
+       print*,'extension expected and not found in FITS file '//trim(filename)
        print*,'abort code'
        call fatal_error
     endif
@@ -425,7 +515,7 @@ contains
          &        nrows, tfields, ttype, tform, tunit, extname, varidat, &
          &        status)
     if (tfields < 4) then
-       print*,'Expected 4 columns in FITS file '//filename
+       print*,'Expected 4 columns in FITS file '//trim(filename)
        print*,'found ',tfields
        if (tfields < 2) call fatal_error
        if (.not.  (trim(ttype(1)) == 'PIXEL' &
@@ -614,8 +704,8 @@ contains
        !     writes required keywords
        !     repeat = 1024
     repeat = 1
-    nrows    = (obs_npix + repeat - 1)/ repeat ! naxis1
     if (obs_npix < repeat) repeat = 1
+    nrows    = (obs_npix + repeat - 1)/ repeat ! naxis1
     write(srepeat,'(i4)') repeat
     srepeat = adjustl(srepeat)
 
@@ -633,7 +723,7 @@ contains
     tunit =  ' '      ! optional, will not appear
     tunit(2) = units_usr
     tunit(4) = units_usr
-    extname  = 'SKY_OBSERVATION'      ! default, will be overide by user provided one if any
+    extname  = 'SKY_OBSERVATION'      ! default, will be overridden by user provided one if any
     if (polar_flag) extname = extnames(1+extno_i)
     varidat  = 0
     call ftphbn(unit, nrows, tfields, ttype, tform, tunit, &
@@ -652,10 +742,10 @@ contains
     call ftpcom(unit,'          Data Specific Keywords    ',status)
     call ftpcom(unit,'------------------------------------------',status)
     call ftpkys(unit,'INDXSCHM','EXPLICIT',' Indexing : IMPLICIT or EXPLICIT', status)
-    call ftpkyj(unit,'GRAIN',  grain,     ' Grain of pixel indexing',status)
-    call ftpcom(unit,'GRAIN=0 : no indexing of pixel data (IMPLICIT) ',status)
-    call ftpcom(unit,'GRAIN=1 : 1 pixel index -> 1 pixel data (EXPLICIT)',status)
-    call ftpcom(unit,'GRAIN>1 : 1 pixel index -> data of GRAIN consecutive pixels (EXPLICIT)',status)
+!     call ftpkyj(unit,'GRAIN',  grain,     ' Grain of pixel indexing',status)
+!     call ftpcom(unit,'GRAIN=0 : no indexing of pixel data                         (IMPLICIT)',status)
+!     call ftpcom(unit,'GRAIN=1 : 1 pixel index -> 1 pixel data                     (EXPLICIT)',status)
+!     call ftpcom(unit,'GRAIN>1 : 1 pixel index -> data of GRAIN consecutive pixels (EXPLICIT)',status)
     call ftpkys(unit,'OBJECT','PARTIAL ',' Sky coverage represented by data',status)     
     call ftpkyj(unit,'OBS_NPIX',obs_npix, ' Number of pixels observed and recorded',status)
 
@@ -716,13 +806,17 @@ contains
     endif
 
 
-    !    write the user provided header literally, except for  PIXTYPE, TFORM*, TTYPE*, TUNIT* and INDXSCHM
+    !    write the user provided header literally, except for  PIXTYPE, TFORM*, TTYPE*, TUNIT*, INDXSCHM and GRAIN
     !    copy NSIDE, ORDERING and COORDSYS and POLAR if they are valid and not already given
     do i=1,nlheader
        card = header(i)
        if (card(1:5) == 'TTYPE' .or. card(1:5) == 'TFORM' .or. card(1:7) == 'PIXTYPE') then
           continue ! don't keep them
        else if (card(1:8) == 'INDXSCHM') then
+          continue
+       else if (card(1:5) == 'GRAIN') then ! already written above
+          continue
+       else if (card(1:13) == 'COMMENT GRAIN' .or. card(1:14) == 'COMMENT  GRAIN') then ! already written above
           continue
        else if (card(1:5) == 'TUNIT') then 
           if ((card(6:6) == '2' .or. card(6:6) == '4') .and. trim(units_usr) == '') then
@@ -1968,7 +2062,8 @@ contains
     INTEGER(I4B) :: status,unit,readwrite,blocksize,naxis
     CHARACTER(LEN=80) :: comment, ttype1
     LOGICAL(LGT) ::  extend, anyf
-    INTEGER(I4B)::  nmove, hdutype, idmax, nrows
+    INTEGER(I4B)::  nmove, hdutype, nrows
+    integer(I4B), dimension(1) :: idmax ! because ftgcvj expects an array (2020-08-24)
 
     !-----------------------------------------------------------------------
     status=0
@@ -2015,9 +2110,9 @@ contains
           ttype1 = trim(strupcase(adjustl(ttype1)))
           if (trim(ttype1(1:5)) == 'INDEX') then
              call ftgkyj(unit, 'NAXIS2', nrows, comment, status) ! find number of rows
-             call ftgcvj(unit, 1_i4b, nrows, 1_i4b, 1_i4b, 0_i4b, idmax, anyf, status) ! read element on last row of first column
+             call ftgcvj(unit, 1_i4b, nrows, 1_i4b, 1_i4b, 0_i4b, idmax(1), anyf, status) ! read element on last row of first column
              if (status == 0) then
-                lmax = int(sqrt(   real(idmax-1, kind = DP)  ) )
+                lmax = int(sqrt(   real(idmax(1)-1, kind = DP)  ) )
                 if (lmax > 0) goto 1000
              endif
           endif
@@ -2759,28 +2854,29 @@ contains
     character(len=*), parameter :: primer_url = 'http://healpix.sf.net/pdf/intro.pdf'
     !====================================================================
     
+    !n_ext = getnumext_fits(mapfile)
     npixtot = getsize_fits(mapfile, nmaps = nmaps, ordering=order_map, nside=nsmax,&    
          &              mlpol=mlpol, type = type, polarisation = polar_fits, &
          &             coordsys=coordsys, polcconv=polcconv)
     
     if (nsmax<=0) then
-       print*,"Keyword NSIDE not found in FITS header!"
+       print*,"Keyword NSIDE not found in FITS header of "//trim(mapfile)//" !"
        call fatal_error(code)
     endif
     if (type == 3) npixtot = nside2npix(nsmax) ! cut sky input data set
     if (nsmax/=npix2nside(npixtot)) then
        print 9000,"FITS header keyword NSIDE does not correspond"
-       print 9000,"to the size of the map!"
+       print 9000,"to the size of the map in "//trim(mapfile)//" !"
        call fatal_error(code)
     endif
 
     if (polarisation .and. (nmaps >=3) .and. polar_fits == -1) then
-       print 9000,"The input fits file MAY NOT contain polarisation data."
+       print 9000,"The input FITS file "//trim(mapfile)//" MAY NOT contain polarisation data."
        print 9000,"Proceed at your own risk"
     endif
     
     if (polarisation .and. (nmaps<3 .or. polar_fits ==0)) then
-       print 9000,"The file does NOT contain polarisation maps"
+       print 9000,"The FITS file "//trim(mapfile)//" does NOT contain polarisation maps"
        print 9000,"only the temperature field will be analyzed"
        polarisation = .false.
     endif
@@ -2809,7 +2905,7 @@ contains
     !     --- check ordering scheme ---
     if ((order_map/=1).and.(order_map/=2)) then
        print 9000,"The ordering scheme of the map must be RING or NESTED."
-       print 9000,"No ordering specification is given in the FITS-header!"
+       print 9000,"No ordering specification is given in the FITS-header of "//trim(mapfile)//" !"
        call fatal_error(code)
     endif
     
