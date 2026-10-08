@@ -11,11 +11,12 @@ lacks DT_NEEDED entries for libsharp and libcfitsio, programs linking
 only with -lhealpix fail with undefined references, and dpkg-shlibdeps
 cannot generate the corresponding package dependencies.
 
-This patch is only suitable for the shared build: in upstream's default
-static mode AR is "ar -rsv", which rejects the -l arguments. A fix for
-upstream would append a variable that is empty by default instead.
+This patch is specific to the way Debian builds the shared library and
+must not be forwarded as is: in upstream's default static mode AR is
+"ar -rsv", which rejects the -l arguments. A fix suitable for upstream
+would instead append a variable that is empty by default.
 
-Forwarded: no
+Forwarded: not-needed
 ---
  src/f90/mod/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

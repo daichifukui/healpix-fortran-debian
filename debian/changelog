@@ -21,7 +21,9 @@ healpix-fortran (3.83+ds-1) unstable; urgency=medium
     derived types (__vtab_, __copy_, __def_init_, __final_) are matched by
     an optional pattern, as they depend on the compiler version.
   * Add a DEP-3 description to 0001-Link-against-libsharp-and-libcfitsio.patch
-    explaining the missing links to libsharp and libcfitsio that it fixes.
+    explaining the missing links to libsharp and libcfitsio that it fixes,
+    and mark it as not needing to be forwarded, since it only suits the
+    Debian shared library build.
   * Bump debhelper compat level to 13.
   * Bump Standards-Version to 4.7.4 (no changes needed).
   * Drop redundant Priority: optional field.
