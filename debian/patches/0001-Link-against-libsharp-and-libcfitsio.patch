@@ -2,12 +2,20 @@ From: Leo Singer <leo.singer@ligo.org>
 Date: Thu, 18 Jun 2020 21:01:46 -0400
 Subject: Link against libsharp and libcfitsio
 
-Debian builds libhealpix as a shared library, which must be linked
-against the libraries it uses so that it carries the corresponding
-DT_NEEDED entries. Upstream only builds a static archive by default, for
-which this is not needed.
+libhealpix uses symbols from libsharp (e.g. sharp_execute) and libcfitsio
+(e.g. ftopen_), but the library rule in src/f90/mod/Makefile does not link
+against them. In upstream's optional shared library mode (configure sets
+AR to "$(FC) -fPIC -shared -o "), which debian/rules mimics, the resulting
+libhealpix.so is not linked against the libraries it depends on: it
+lacks DT_NEEDED entries for libsharp and libcfitsio, programs linking
+only with -lhealpix fail with undefined references, and dpkg-shlibdeps
+cannot generate the corresponding package dependencies.
 
-Forwarded: not-needed
+This patch is only suitable for the shared build: in upstream's default
+static mode AR is "ar -rsv", which rejects the -l arguments. A fix for
+upstream would append a variable that is empty by default instead.
+
+Forwarded: no
 ---
  src/f90/mod/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
