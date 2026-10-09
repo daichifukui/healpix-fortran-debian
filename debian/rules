@@ -1,16 +1,13 @@
 #!/usr/bin/make -f
 
-# The Fortran interfaces to the C sharp wrappers trip -Wlto-type-mismatch
-export DEB_BUILD_MAINT_OPTIONS = hardening=+all optimize=-lto
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 export DEB_CFLAGS_MAINT_APPEND = -fPIC
 export DEB_FFLAGS_MAINT_APPEND = -fPIC -fopenmp
 # upstream builds with -O3
 ifeq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
-export DEB_FFLAGS_MAINT_STRIP = -O2
 DEB_FFLAGS_MAINT_APPEND += -O3
 endif
 
-include /usr/share/dpkg/architecture.mk
 include /usr/share/dpkg/buildflags.mk
 include /usr/share/dpkg/pkg-info.mk
 
