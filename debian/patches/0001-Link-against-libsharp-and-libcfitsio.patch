@@ -1,5 +1,6 @@
 From: Leo Singer <leo.singer@ligo.org>
-Date: Thu, 18 Jun 2020 21:01:46 -0400
+Last-Update: 2026-10-10
+Forwarded: not-needed
 Subject: Link against libsharp and libcfitsio
 
 libhealpix uses symbols from libsharp (e.g. sharp_execute) and libcfitsio
@@ -15,8 +16,6 @@ This patch is specific to the way Debian builds the shared library and
 must not be forwarded as is: in upstream's default static mode AR is
 "ar -rsv", which rejects the -l arguments. A fix suitable for upstream
 would instead append a variable that is empty by default.
-
-Forwarded: not-needed
 ---
  src/f90/mod/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
